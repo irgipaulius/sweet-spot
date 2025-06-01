@@ -452,9 +452,11 @@
                 </div>
             </div>
 
-    <div id="plot"></div>
-    
     <div class="card">
+        <div id="plot"></div>
+        <p>Click and drag to zoom in on a certain frequency band</p>
+        <p>Click on the matched mode to see the 3D visualization of the room</p>
+    
         <div class="mode-legend">
             <!-- <h3>Mode Types & Gain Levels</h3> -->
             <div class="legend-grid">
@@ -525,7 +527,7 @@
     </div>
 
     <div class="card explanation">
-        <h2>The Magic of Infinite Sustain: Room Resonance & Guitar</h2>
+        <h1>The Magic of Infinite Sustain: Room Resonance & Guitar</h2>
         
         <div class="video-container">
             <iframe width="560" height="315" src="https://www.youtube.com/embed/vkUpfw4Hf3w?si=FdC6rLJg0PI-2_Az&amp;start=175" title="Gary Moore - Still Got The Blues" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
@@ -535,12 +537,12 @@
             Watch in awe as Gary Moore demonstrates the legendary "infinite sustain" technique at 2:55 (end especially at 8:30). Stepping in and out of the perfect spot in front of his amplifiers, in a stadium acoustically tuned to perfection, Moore creates that haunting, seemingly endless note that defines blues-rock mastery. This isn't just skill—it's physics and acoustics working in perfect harmony.
         </p>
         
-        <h3>Why It Works: The Science of Sweet Spots</h3>
+        <h2>Why It Works: The Science of Sweet Spots</h3>
         <p>
-            When a guitar note matches a room's natural resonance frequency, magic happens. The room itself becomes an amplifier, reinforcing specific frequencies and creating standing waves that feed energy back into your guitar strings. This is how legends like Moore, Gilmour, and May achieve those spine-tingling sustained notes without digital effects.
+            When a guitar note matches a room's natural resonance frequency, magic happens. The room itself becomes an amplifier, reinforcing specific frequencies and creating standing waves that feed energy back into your guitar strings, or your voice. This is how legends like Moore, Gilmour, and May achieve those spine-tingling sustained notes without digital effects.
         </p>
         
-        <h3>How to Use This Tool</h3>
+        <h2>How to Use This Tool</h3>
         <p>
             <strong>Find Your Room's Sweet Spot</strong>
             <ul>
@@ -570,7 +572,7 @@
             </ul>
         </p>
         
-        <h3>Understanding the Visualization</h3>
+        <h2>Understanding the Visualization</h3>
         <p>
             <ul>
                 <li><span style="color:#3498db">Blue dots</span>: Axial modes (loudest gain) - sound waves bouncing between two parallel surfaces</li>
@@ -578,10 +580,25 @@
                 <li><span style="color:#9b59b6">Purple dots</span>: Oblique modes (6dB less gain) - sound waves bouncing between all six surfaces</li>
                 <li><span style="color:#e74c3c">Red highlights</span>: Where room modes match musical notes - your potential sweet spots!</li>
             </ul>
+
+            <p>
+                Click on the matched mode, and check out the 3D visualisation of the room. It shows you the standing waves (highest sound pressure, lowest velocity). Areas in between the standing waves are areas with highest sound velocity. Experiment with different positions in the room, and see how the sound affects your guitar, your vocal cords, or whatever instrument you're using.
+            </p>
+        </p>
+        
+        <h2>Note on audio quality</h3>
+        <p>
+            An effective note tuning does NOT mean the room will sound good. For example, a room with dimensions 2.08 x 2.08 x 2.08 will have a natural resonance frequency of 440 Hz, which is the A4 note. This means that the room will amplify the E2, E3 and E4 notes, but it will also amplify other frequencies that are not in the E note. However, every audio engineer knows by heart, that cube-shaped rooms are absolutely the WORST sounding rooms, because the amplified frequencies match up and boost certain frequencies HARD, resulting in an uneven frequency response. However, if all you wanted to do is play one note, then I guess those are the best dimensions for that.
+        </p>
+        <p>
+            Personally, I built this too for myself in order to find the distance for a rigid partition of a rectangular room, that would create a natural resonance frequency for at least some note that's within the standard tuning, instead of having it amplify the out-of-tune sounding frequencies.
+        </p>
+        <p>
+            Final note: this is a highly theoretical tool. It may not work for you given your furniture placement, wall materials, etc. But it can give you a rough idea of where you can try standing with your guitar, and hoping to catch that SWEET SPOT.
         </p>
         
         <div class="credits-section">
-            <h3>Credits & Resources</h3>
+            <h2>Credits & Resources</h3>
             
             <h4>Inspiration</h4>
             <ul class="credits-list">
@@ -675,12 +692,6 @@
                         const f = (c / 2) * Math.sqrt((i/L)**2 + (j/H)**2 + (k/W)**2);
                         
                         // Special logging for 0-0-1 and 0-1-0 modes
-                        if ((i === 0 && j === 0 && k === 1) || (i === 0 && j === 1 && k === 0)) {
-                            console.log('MODE CALCULATION for', i, j, k);
-                            console.log('Room dimensions in formula - L:', L, 'H:', H, 'W:', W);
-                            console.log('Frequency calculated:', f.toFixed(2), 'Hz');
-                            console.log('Formula used: (c/2) * sqrt((', i, '/', L, ')^2 + (', j, '/', H, ')^2 + (', k, '/', W, ')^2)');
-                        }
                         
                         if (f <= maxFreq) {
                             // Find the closest musical note
@@ -953,7 +964,7 @@
                             font: { size: 18 }
                         },
                         xaxis: {
-                            title: 'Mode',
+                            title: 'Mode index',
                             showgrid: false,
                             range: [-1, modes.length]
                         },
