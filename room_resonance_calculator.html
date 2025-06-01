@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sweet Spot</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --background-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-radius: 8px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: var(--secondary-color);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h4 {
+            color: var(--secondary-color);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: flex-end;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--secondary-color);
+        }
+        
+        input {
+            width: 80px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        #plot {
+            width: 100%;
+            height: 600px;
+            margin-top: 20px;
+        }
+        
+        .explanation {
+            line-height: 1.7;
+            margin-top: 30px;
+        }
+        
+        .explanation h2 {
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+        
+        .highlighted-note {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        
+        .validation-message {
+            color: #e74c3c;
+            font-size: 0.8em;
+            margin-top: 2px;
+        }
+        
+        /* Info icon and popup styles */
+        .input-with-icon {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .input-with-icon input {
+            flex: 1;
+        }
+        
+        .info-icon {
+            display: inline-block;
+            margin-left: 5px;
+            color: #3498db;
+            font-size: 1.2em;
+            cursor: pointer;
+            vertical-align: middle;
+        }
+        
+        .info-popup {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            width: 300px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+        
+        .info-popup p {
+            margin: 0 0 8px 0;
+        }
+        
+        .info-popup ul {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+        
+        input.invalid {
+            border-color: #e74c3c;
+            background-color: rgba(231, 76, 60, 0.05);
+        }
+        
+        /* Mode type legend */
+        .mode-legend {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .mode-legend h3 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            justify-content: center;
+            margin: 0 auto;
+            max-width: 900px;
+        }
+        
+        .mode-type {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            background-color: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .mode-type:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .color-box {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .gain-info {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 4px;
+            font-style: italic;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 1200px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .close-modal {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close-modal:hover {
+            color: #333;
+        }
+        
+        .modal-flex-container {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-left-column {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .modal-right-column {
+            flex: 1.2;
+            min-width: 0;
+        }
+        
+        .mode-detail-section {
+            margin-bottom: 20px;
+        }
+        
+        .mode-detail-section h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        
+        .mode-math {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            margin-top: 10px;
+        }
+        
+        .mode-visualization {
+            height: 100%;
+        }
+        
+        #3d-visualization {
+            width: 100%;
+            height: 350px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .visualization-caption {
+            font-size: 0.9em;
+            margin-top: 10px;
+            color: #555;
+        }
+        
+        .acoustic-impact {
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+        
+        /* Responsive layout for mobile */
+        @media (max-width: 768px) {
+            .modal-flex-container {
+                flex-direction: column-reverse;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+                margin: 2% auto;
+            }
+            
+            #3d-visualization {
+                height: 250px;
+            }
+        }
+        
+        .mode-math {
+            font-family: 'Courier New', monospace;
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sweet Spot</h1>
+        <h4>Map musical notes to room resonances and find your instrument's sweet spot for those insane sustained notes</h4>
+        <div class="card">
+            <div class="input-container">
+                <div class="input-group">
+                    <label for="length">Length (m):</label>
+                    <input type="number" id="length" value="2.78" step="0.01" min="0.1" class="live-update">
+                    <div class="validation-message" id="length-validation"></div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="width">Width (m):</label>
+                    <input type="number" id="width" value="2.10" step="0.01" min="0.1" class="live-update">
+                    <div class="validation-message" id="width-validation"></div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="height">Height (m):</label>
+                    <input type="number" id="height" value="2.10" step="0.01" min="0.1" class="live-update">
+                    <div class="validation-message" id="height-validation"></div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="maxFreq">Max Frequency (Hz):</label>
+                    <input type="number" id="maxFreq" value="300" step="10" min="50" class="live-update">
+                    <div class="validation-message" id="maxFreq-validation"></div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="resolution">Tolerance (Hz):</label>
+                    <div class="input-with-icon">
+                        <input type="number" id="resolution" value="0.5" step="0.1" min="0.01" max="10" class="live-update">
+                        <span class="info-icon" id="tolerance-info">ⓘ</span>
+                    </div>
+                    <div class="info-popup" id="tolerance-info-popup">
+                        <p><strong>Tolerance Explained:</strong></p>
+                        <p>This setting determines how closely a room mode must match a musical note to be considered a match:</p>
+                        <ul>
+                            <li><strong>0.05 Hz</strong>: For clean notes without vibrato (within 5 cents)</li>
+                            <li><strong>5 Hz</strong>: For half-step vibrato</li>
+                            <li><strong>10 Hz</strong>: For vigorous vibrato</li>
+                        </ul>
+                        <p><strong>Note:</strong> While closer matching is preferable, this is a theoretical tool and real-life acoustic performance will vary based on room materials, furniture, and other factors.</p>
+                    </div>
+                    <div class="validation-message" id="resolution-validation"></div>
+                </div>
+            </div>
+
+    <div id="plot"></div>
+    
+    <div class="card">
+        <div class="mode-legend">
+            <!-- <h3>Mode Types & Gain Levels</h3> -->
+            <div class="legend-grid">
+                <div class="mode-type">
+                    <div class="color-box" style="background-color: #3498db;"></div>
+                    <span>Axial Modes</span>
+                    <span class="gain-info">Loudest gain</span>
+                </div>
+                <div class="mode-type">
+                    <div class="color-box" style="background-color: #2ecc71;"></div>
+                    <span>Tangential Modes</span>
+                    <span class="gain-info">3dB less than Axial</span>
+                </div>
+                <div class="mode-type">
+                    <div class="color-box" style="background-color: #9b59b6;"></div>
+                    <span>Oblique Modes</span>
+                    <span class="gain-info">6dB less than Axial</span>
+                </div>
+                <div class="mode-type">
+                    <div class="color-box" style="background-color: #e74c3c;"></div>
+                    <span>Musical Note Match</span>
+                    <span class="gain-info">Within tolerance</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for detailed mode information -->
+    <div id="modeModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="modal-title">Mode Details</h2>
+            
+            <div class="modal-flex-container">
+                <!-- Left side: Information -->
+                <div class="modal-left-column">
+                    <div class="mode-detail-section">
+                        <h3>Technical Information</h3>
+                        <p id="mode-type-info"></p>
+                        <p id="mode-indices"></p>
+                        <p id="mode-frequency"></p>
+                        <p id="mode-musical-note"></p>
+                        <div class="mode-math" id="mode-formula"></div>
+                    </div>
+                    
+                    <div class="mode-detail-section">
+                        <h3>In Simple Terms</h3>
+                        <p id="mode-simple-explanation"></p>
+                    </div>
+                </div>
+                
+                <!-- Right side: 3D Visualization -->
+                <div class="modal-right-column">
+                    <div class="mode-visualization">
+                        <div id="3d-visualization"></div>
+                        <p id="mode-visualization-text" class="visualization-caption"></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bottom section: Acoustic Impact -->
+            <div class="mode-detail-section acoustic-impact">
+                <h3>Acoustic Impact</h3>
+                <p id="mode-acoustic-impact"></p>
+                <p id="mode-treatment-suggestions"></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card explanation">
+        <h2>Understanding Room Resonance and Guitar Interaction</h2>
+        <p>
+            This calculator helps visualize how a room's dimensions create resonant frequencies that can interact with guitar notes.
+            Room resonance occurs when sound waves bounce between parallel surfaces and create standing waves at specific frequencies.
+        </p>
+        <p>
+            <strong>What this graph shows:</strong>
+            <ul>
+                <li><span style="color:#3498db">Blue dots</span> represent axial room modes (1D, strongest effect)</li>
+                <li><span style="color:#2ecc71">Green dots</span> represent tangential room modes (2D, medium effect)</li>
+                <li><span style="color:#9b59b6">Purple dots</span> represent oblique room modes (3D, weakest effect)</li>
+                <li><span style="color:#e67e22">Orange diamonds and lines</span> show musical note frequencies</li>
+                <li><span class="highlighted-note">Highlighted areas</span> indicate where room modes closely match musical notes (within the specified tolerance)</li>
+                <li>Click on any mode (dot) to see detailed information about that specific mode</li>
+            </ul>
+        </p>
+        <p>
+            <strong>How to use this information:</strong>
+            <ul>
+                <li>If you notice too many matches between room modes and notes you play frequently, your room may over-accentuate those notes</li>
+                <li>For recording or practice spaces, consider adding acoustic treatment (bass traps, diffusers) at problematic spots</li>
+                <li>Experiment with different room dimensions before building a music space</li>
+                <li>In existing rooms, try repositioning your playing or listening position to minimize the effect of problematic modes</li>
+            </ul>
+        </p>
+        <p>
+            Ideal acoustic spaces have a relatively even distribution of modes without strong clustering or gaps. If you notice many highlighted areas in your playing range, consider adding acoustic treatment to those walls.        
+        </p>
+    </div>
+
+    <script>
+        // Musical note frequencies mapping with names
+        const noteFrequencies = [
+            { note: "C0", freq: 16.35 }, { note: "C#0/Db0", freq: 17.32 }, { note: "D0", freq: 18.35 }, { note: "D#0/Eb0", freq: 19.45 },
+            { note: "E0", freq: 20.60 }, { note: "F0", freq: 21.83 }, { note: "F#0/Gb0", freq: 23.12 }, { note: "G0", freq: 24.50 },
+            { note: "G#0/Ab0", freq: 25.96 }, { note: "A0", freq: 27.50 }, { note: "A#0/Bb0", freq: 29.14 }, { note: "B0", freq: 30.87 },
+            
+            { note: "C1", freq: 32.70 }, { note: "C#1/Db1", freq: 34.65 }, { note: "D1", freq: 36.71 }, { note: "D#1/Eb1", freq: 38.89 },
+            { note: "E1", freq: 41.20 }, { note: "F1", freq: 43.65 }, { note: "F#1/Gb1", freq: 46.25 }, { note: "G1", freq: 49.00 },
+            { note: "G#1/Ab1", freq: 51.91 }, { note: "A1", freq: 55.00 }, { note: "A#1/Bb1", freq: 58.27 }, { note: "B1", freq: 61.74 },
+            
+            { note: "C2", freq: 65.41 }, { note: "C#2/Db2", freq: 69.30 }, { note: "D2", freq: 73.42 }, { note: "D#2/Eb2", freq: 77.78 },
+            { note: "E2", freq: 82.41 }, { note: "F2", freq: 87.31 }, { note: "F#2/Gb2", freq: 92.50 }, { note: "G2", freq: 98.00 },
+            { note: "G#2/Ab2", freq: 103.83 }, { note: "A2", freq: 110.00 }, { note: "A#2/Bb2", freq: 116.54 }, { note: "B2", freq: 123.47 },
+            
+            { note: "C3", freq: 130.81 }, { note: "C#3/Db3", freq: 138.59 }, { note: "D3", freq: 146.83 }, { note: "D#3/Eb3", freq: 155.56 },
+            { note: "E3", freq: 164.81 }, { note: "F3", freq: 174.61 }, { note: "F#3/Gb3", freq: 185.00 }, { note: "G3", freq: 196.00 },
+            { note: "G#3/Ab3", freq: 207.65 }, { note: "A3", freq: 220.00 }, { note: "A#3/Bb3", freq: 233.08 }, { note: "B3", freq: 246.94 },
+            
+            { note: "C4", freq: 261.63 }, { note: "C#4/Db4", freq: 277.18 }, { note: "D4", freq: 293.66 }, { note: "D#4/Eb4", freq: 311.13 },
+            { note: "E4", freq: 329.63 }, { note: "F4", freq: 349.23 }, { note: "F#4/Gb4", freq: 369.99 }, { note: "G4", freq: 392.00 },
+            { note: "G#4/Ab4", freq: 415.30 }, { note: "A4", freq: 440.00 }, { note: "A#4/Bb4", freq: 466.16 }, { note: "B4", freq: 493.88 },
+            
+            { note: "C5", freq: 523.25 }, { note: "C#5/Db5", freq: 554.37 }, { note: "D5", freq: 587.33 }, { note: "D#5/Eb5", freq: 622.25 },
+            { note: "E5", freq: 659.25 }, { note: "F5", freq: 698.46 }, { note: "F#5/Gb5", freq: 739.99 }, { note: "G5", freq: 783.99 },
+            { note: "G#5/Ab5", freq: 830.61 }, { note: "A5", freq: 880.00 }, { note: "A#5/Bb5", freq: 932.33 }, { note: "B5", freq: 987.77 },
+        ];
+
+        // Guitar standard tuning (for reference)
+        const standardGuitarTuning = [
+            { string: "E2", freq: 82.41 },   // Low E (6th string)
+            { string: "A2", freq: 110.00 },  // A (5th string)
+            { string: "D3", freq: 146.83 },  // D (4th string)
+            { string: "G3", freq: 196.00 },  // G (3rd string)
+            { string: "B3", freq: 246.94 },  // B (2nd string)
+            { string: "E4", freq: 329.63 },  // High E (1st string)
+        ];
+
+        // Extract all guitar note frequencies for plotting
+        const guitarNotes = noteFrequencies.map(note => note.freq);
+
+        // Helper function to find the closest note to a frequency
+        function findClosestNote(frequency) {
+            let closestNote = null;
+            let smallestDifference = Infinity;
+            
+            for (const note of noteFrequencies) {
+                const difference = Math.abs(note.freq - frequency);
+                if (difference < smallestDifference) {
+                    smallestDifference = difference;
+                    closestNote = note;
+                }
+            }
+            
+            return closestNote;
+        }
+
+        // Compute modes up to maxFreq
+        function computeModes(L, W, H, maxFreq=600) {
+            const c = 343; // Speed of sound in air (m/s)
+            const modes = [];
+            const nmax = 5;
+            
+            for (let i = 0; i <= nmax; i++) {
+                for (let j = 0; j <= nmax; j++) {
+                    for (let k = 0; k <= nmax; k++) {
+                        if (i === 0 && j === 0 && k === 0) continue; // Skip (0,0,0) mode
+                        
+                        // Room mode calculation formula
+                        // i = length dimension (L), j = height dimension (H), k = width dimension (W)
+                        const f = (c / 2) * Math.sqrt((i/L)**2 + (j/H)**2 + (k/W)**2);
+                        
+                        // Special logging for 0-0-1 and 0-1-0 modes
+                        if ((i === 0 && j === 0 && k === 1) || (i === 0 && j === 1 && k === 0)) {
+                            console.log('MODE CALCULATION for', i, j, k);
+                            console.log('Room dimensions in formula - L:', L, 'H:', H, 'W:', W);
+                            console.log('Frequency calculated:', f.toFixed(2), 'Hz');
+                            console.log('Formula used: (c/2) * sqrt((', i, '/', L, ')^2 + (', j, '/', H, ')^2 + (', k, '/', W, ')^2)');
+                        }
+                        
+                        if (f <= maxFreq) {
+                            // Find the closest musical note
+                            const closestNote = findClosestNote(f);
+                            const difference = Math.abs(closestNote.freq - f);
+                            const resolution = parseFloat(document.getElementById("resolution").value);
+                            const matchesNote = difference <= resolution; // Within the specified tolerance
+                            
+                            // Determine the mode type
+                            let modeType;
+                            const nonZeroCount = [i, j, k].filter(val => val !== 0).length;
+                            
+                            if (nonZeroCount === 1) {
+                                modeType = 'axial'; // One-dimensional, strongest effect
+                            } else if (nonZeroCount === 2) {
+                                modeType = 'tangential'; // Two-dimensional, medium effect
+                            } else {
+                                modeType = 'oblique'; // Three-dimensional, weakest effect
+                            }
+                            
+                            modes.push({
+                                freq: f,
+                                indices: [i, j, k],
+                                closestNote: closestNote.note,
+                                noteFreq: closestNote.freq,
+                                difference: difference,
+                                matchesNote: matchesNote,
+                                modeType: modeType
+                            });
+                        }
+                    }
+                }
+            }
+            
+            // Sort modes by frequency
+            modes.sort((a, b) => a.freq - b.freq);
+            return modes;
+        }
+
+        // The updatePlot function has been replaced by the attemptUpdatePlot function
+        // which includes validation and error handling
+
+        // Validate a single input field
+        function validateInput(inputId, minValue = 0.1) {
+            const input = document.getElementById(inputId);
+            const validationMessage = document.getElementById(`${inputId}-validation`);
+            const value = input.value.trim();
+            
+            // Clear previous validation state
+            input.classList.remove('invalid');
+            validationMessage.textContent = '';
+            
+            // Check if empty
+            if (value === '') {
+                input.classList.add('invalid');
+                validationMessage.textContent = 'Required';
+                return false;
+            }
+            
+            // Check if valid number
+            const numValue = parseFloat(value);
+            if (isNaN(numValue)) {
+                input.classList.add('invalid');
+                validationMessage.textContent = 'Must be a number';
+                return false;
+            }
+            
+            // Check if meets minimum value
+            if (numValue < minValue) {
+                input.classList.add('invalid');
+                validationMessage.textContent = `Minimum value is ${minValue}`;
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // Validate all inputs
+        function validateAllInputs() {
+            const lengthValid = validateInput('length');
+            const widthValid = validateInput('width');
+            const heightValid = validateInput('height');
+            const maxFreqValid = validateInput('maxFreq', 50);
+            const resolutionValid = validateInput('resolution', 0.01);
+            
+            return lengthValid && widthValid && heightValid && maxFreqValid && resolutionValid;
+        }
+        
+        // Get validated values with fallbacks
+        function getValidatedValue(inputId, defaultValue) {
+            const input = document.getElementById(inputId);
+            const value = parseFloat(input.value);
+            return isNaN(value) ? defaultValue : Math.max(value, defaultValue);
+        }
+        
+        // Attempt to update the plot with validation
+        function attemptUpdatePlot() {
+            // Even if validation fails, we can still update with safe values
+            const L = getValidatedValue('length', 0.1);
+            const W = getValidatedValue('width', 0.1);
+            const H = getValidatedValue('height', 0.1); 
+            const maxFreq = getValidatedValue('maxFreq', 50);
+            const resolution = getValidatedValue('resolution', 0.01);
+            
+            // Execute validation to show error messages
+            validateAllInputs();
+            
+            try {
+                // Compute the modes with the validated values
+                const modes = computeModes(L, W, H, maxFreq);
+                
+                // Only proceed with plotting if we have valid modes
+                if (modes && modes.length > 0) {
+                    // Setup modal functionality
+                    const modal = document.getElementById('modeModal');
+                    const closeModal = document.querySelector('.close-modal');
+                    
+                    // Close modal when clicking the X
+                    closeModal.onclick = function() {
+                        modal.style.display = 'none';
+                    }
+                    
+                    // Close modal when clicking outside
+                    window.onclick = function(event) {
+                        if (event.target == modal) {
+                            modal.style.display = 'none';
+                        }
+                    }
+                    
+                    // Plot click handler will be set up after the plot is created
+                    
+                    // Update the count of matching modes
+                    const matchingModes = modes.filter(m => m.matchesNote);
+                    
+                    // Create trace for room modes with appropriate colors by type
+                    const modeColors = modes.map(m => {
+                        // Color by mode type, regardless of match status
+                        switch(m.modeType) {
+                            case 'axial': return '#3498db'; // Blue
+                            case 'tangential': return '#2ecc71'; // Green
+                            case 'oblique': return '#9b59b6'; // Purple
+                            default: return '#3498db';
+                        }
+                    });
+                    
+                    // Larger markers for matched notes and axial modes (most important)
+                    const modeSizes = modes.map(m => {
+                        if (m.matchesNote) return 10;
+                        if (m.modeType === 'axial') return 7;
+                        return 6;
+                    });
+                    
+                    const modeFreqs = modes.map(m => m.freq);
+                    
+                    const modeTrace = {
+                        x: [...Array(modes.length).keys()],
+                        y: modeFreqs,
+                        mode: 'markers',
+                        type: 'scatter',
+                        name: 'Room Modes',
+                        marker: {
+                            color: modeColors,
+                            size: modeSizes,
+                            line: {
+                                color: modes.map(m => {
+                                    if (!m.matchesNote) return '#2980b9'; // Default outline
+                                    
+                                    // Use slightly darker version of the mode type color for the outline
+                                    switch(m.modeType) {
+                                        case 'axial': return '#2980b9'; // Darker blue
+                                        case 'tangential': return '#27ae60'; // Darker green
+                                        case 'oblique': return '#8e44ad'; // Darker purple
+                                        default: return '#2980b9';
+                                    }
+                                }),
+                                width: modes.map(m => m.matchesNote ? 2 : 0)
+                            }
+                        },
+                        text: modes.map(m => {
+                            let text = `Mode (${m.indices.join(',')}) - ${m.freq.toFixed(2)} Hz`;
+                            if (m.matchesNote) {
+                                text += `<br>Matches ${m.closestNote} (${m.noteFreq.toFixed(2)} Hz)`;
+                                text += `<br>Difference: ${m.difference.toFixed(2)} Hz`;
+                            } else {
+                                text += `<br>Closest to ${m.closestNote} (${m.noteFreq.toFixed(2)} Hz)`;
+                                text += `<br>Difference: ${m.difference.toFixed(2)} Hz`;
+                            }
+                            return text;
+                        }),
+                        hoverinfo: 'text'
+                    };
+
+                    // Create trace for musical note frequencies
+                    const noteTrace = {
+                        x: Array(noteFrequencies.length).fill(-1),  // Place at x=-1 (off the main plot area)
+                        y: noteFrequencies.map(n => n.freq),
+                        mode: 'markers+text',
+                        type: 'scatter',
+                        name: 'Musical Notes',
+                        marker: { color: '#e67e22', size: 8, symbol: 'diamond' },
+                        text: noteFrequencies.map(n => n.note),
+                        textposition: 'right',
+                        textfont: { size: 10 },
+                        hoverinfo: 'text',
+                        hovertext: noteFrequencies.map(n => `${n.note}: ${n.freq.toFixed(2)} Hz`)
+                    };
+
+                    // Create horizontal lines for musical notes up to maxFreq
+                    const noteLines = noteFrequencies
+                        .filter(n => n.freq <= maxFreq)
+                        .map(n => {
+                            return {
+                                type: 'line',
+                                x0: -1,
+                                x1: modes.length,
+                                y0: n.freq,
+                                y1: n.freq,
+                                line: { color: '#e67e22', width: 1, dash: 'dot' }
+                            };
+                        });
+
+                    // Create circles to highlight matches
+                    const matchCircles = [];
+                    modes.forEach((mode, i) => {
+                        if (mode.matchesNote) {
+                            matchCircles.push({
+                                type: 'circle',
+                                xref: 'x',
+                                yref: 'y',
+                                x0: i - 0.5,
+                                x1: i + 0.5,
+                                y0: mode.freq - 6,
+                                y1: mode.freq + 6,
+                                fillcolor: 'rgba(231, 76, 60, 0.2)',
+                                line: {
+                                    color: 'rgba(231, 76, 60, 0.7)',
+                                    width: 2
+                                }
+                            });
+                        }
+                    });
+
+                    // Combine all shapes
+                    const shapes = [...noteLines, ...matchCircles];
+
+                    // Generate annotations for matching notes
+                    const annotations = modes.map((mode, i) => {
+                        if (mode.matchesNote) {
+                            return {
+                                x: i,
+                                y: mode.freq + 12,
+                                text: mode.closestNote,
+                                showarrow: false,
+                                font: {
+                                    family: 'Arial',
+                                    size: 12,
+                                    color: '#e74c3c',
+                                    weight: 'bold'
+                                },
+                                bgcolor: 'rgba(255,255,255,0.8)',
+                                borderpad: 4
+                            };
+                        }
+                        return null;
+                    }).filter(a => a !== null);
+
+                    const layout = {
+                        title: {
+                            text: `Room Modes (${L}m × ${W}m × ${H}m) with Musical Notes Overlay`,
+                            font: { size: 18 }
+                        },
+                        xaxis: {
+                            title: 'Mode',
+                            showgrid: false,
+                            range: [-1, modes.length]
+                        },
+                        yaxis: {
+                            title: 'Frequency (Hz)',
+                            zeroline: false,
+                            range: [0, maxFreq * 1.05]
+                        },
+                        shapes: shapes,
+                        annotations: annotations,
+                        hovermode: 'closest',
+                        legend: {
+                            x: 0,
+                            y: 1,
+                            bgcolor: 'rgba(255,255,255,0.8)',
+                            bordercolor: '#ddd',
+                            borderwidth: 1
+                        },
+                        margin: { l: 60, r: 40, t: 80, b: 60 },
+                        plot_bgcolor: 'rgba(245,247,250,0.8)',
+                        paper_bgcolor: 'rgba(245,247,250,0)'
+                    };
+
+                    Plotly.newPlot('plot', [modeTrace, noteTrace], layout, {responsive: true})
+                        .then(function() {
+                            // Set up click handler after plot is created
+                            const plotElement = document.getElementById('plot');
+                            plotElement.on('plotly_click', function(data) {
+                                if (data.points.length > 0 && data.points[0].curveNumber === 0) { // Make sure it's the modes trace
+                                    const pointIndex = data.points[0].pointIndex;
+                                    const mode = modes[pointIndex];
+                                    showModeDetails(mode, L, W, H);
+                                }
+                            });
+                        });
+                }
+            } catch (error) {
+                console.error('Error updating plot:', error);
+                // Could display an error message to the user here
+            }
+        }
+        
+        // Use a debounce function to prevent too many updates
+        function debounce(func, wait) {
+            let timeout;
+            return function() {
+                const context = this;
+                const args = arguments;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), wait);
+            };
+        }
+        
+        // Debounced update function
+        const debouncedUpdate = debounce(attemptUpdatePlot, 300);
+        
+        // Add event listeners to all input fields
+        document.querySelectorAll('.live-update').forEach(input => {
+            input.addEventListener('input', debouncedUpdate);
+        });
+        
+        // Three.js variables
+        let scene, camera, renderer, controls;
+        let roomMesh, resonanceMesh;
+        
+        // Function to create 3D visualization of room resonance
+        function create3DVisualization(mode, L, W, H) {
+            // Clean up previous visualization if it exists
+            const container = document.getElementById('3d-visualization');
+            while(container.firstChild) {
+                container.removeChild(container.firstChild);
+            }
+            
+            console.log('Creating visualization for mode:', mode, 'with indices:', mode.indices);
+            
+            // Force the container to have a specific height
+            container.style.height = '300px';
+            container.style.width = '100%';
+            
+            // Create scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xf5f5f5);
+            
+            // Set up renderer with explicit dimensions
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth || 600, container.clientHeight || 300); // Fallback if dimensions are 0
+            container.appendChild(renderer.domElement);
+            
+            // Set up camera
+            const aspect = container.clientWidth / container.clientHeight || 2; // Fallback if dimensions are 0
+            camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
+            
+            // Define camera parameters
+            let cameraTheta = Math.PI / 4;
+            let cameraPhi = Math.PI / 4;
+            let cameraRadius = Math.max(L, W, H) * 2;
+            let isDragging = false;
+            let previousMousePosition = { x: 0, y: 0 };
+            
+            // Update camera position based on spherical coordinates
+            function updateCameraPosition() {
+                const x = cameraRadius * Math.sin(cameraTheta) * Math.cos(cameraPhi) + L/2;
+                const y = cameraRadius * Math.cos(cameraTheta) + H/2;
+                const z = cameraRadius * Math.sin(cameraTheta) * Math.sin(cameraPhi) + W/2;
+                camera.position.set(x, y, z);
+                camera.lookAt(L/2, H/2, W/2);
+            }
+            
+            // Set initial camera position
+            updateCameraPosition();
+            
+            // Add mouse event listeners for camera control
+            renderer.domElement.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                previousMousePosition = {
+                    x: e.offsetX,
+                    y: e.offsetY
+                };
+                e.preventDefault();
+            });
+            
+            renderer.domElement.addEventListener('mousemove', function(e) {
+                if (isDragging) {
+                    const deltaMove = {
+                        x: e.offsetX - previousMousePosition.x,
+                        y: e.offsetY - previousMousePosition.y
+                    };
+                    
+                    // Adjust rotation speeds
+                    const rotationSpeed = 0.01;
+                    
+                    // Update angles based on mouse movement
+                    cameraPhi += deltaMove.x * rotationSpeed;
+                    cameraTheta = Math.max(0.1, Math.min(Math.PI - 0.1, cameraTheta - deltaMove.y * rotationSpeed));
+                    
+                    updateCameraPosition();
+                    
+                    previousMousePosition = {
+                        x: e.offsetX,
+                        y: e.offsetY
+                    };
+                }
+            });
+            
+            renderer.domElement.addEventListener('mouseup', function(e) {
+                isDragging = false;
+            });
+            
+            renderer.domElement.addEventListener('mouseout', function(e) {
+                isDragging = false;
+            });
+            
+            // Add mouse wheel listener for zoom
+            renderer.domElement.addEventListener('wheel', function(e) {
+                e.preventDefault();
+                const zoomSpeed = 0.1;
+                const zoomDelta = e.deltaY * zoomSpeed;
+                cameraRadius = Math.max(Math.max(L, W, H) * 0.5, Math.min(Math.max(L, W, H) * 5, cameraRadius + zoomDelta));
+                updateCameraPosition();
+            }, { passive: false });
+            
+            // Add ambient light
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+            
+            // Add directional light
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(L*2, H*2, W*2);
+            scene.add(directionalLight);
+            
+            // Add coordinate axes helper to visualize X, Y, Z directions
+            const axesHelper = new THREE.AxesHelper(Math.max(L, W, H));
+            scene.add(axesHelper);
+            console.log('Added axes helper - Red: X (Length), Green: Y (Height), Blue: Z (Width)');
+            
+            // Add text labels for axes
+            const fontLoader = new THREE.FontLoader();
+            
+            // Create a simple colored material for each axis
+            const xMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Red for X
+            const yMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 }); // Green for Y
+            const zMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff }); // Blue for Z
+            
+            // Create simple cube markers at the end of each axis
+            const markerSize = Math.max(L, W, H) * 0.05;
+            
+            // X-axis label (Length)
+            const xMarker = new THREE.Mesh(new THREE.BoxGeometry(markerSize, markerSize, markerSize), xMaterial);
+            xMarker.position.set(Math.max(L, W, H) * 1.1, 0, 0);
+            scene.add(xMarker);
+            
+            // Y-axis label (Height)
+            const yMarker = new THREE.Mesh(new THREE.BoxGeometry(markerSize, markerSize, markerSize), yMaterial);
+            yMarker.position.set(0, Math.max(L, W, H) * 1.1, 0);
+            scene.add(yMarker);
+            
+            // Z-axis label (Width)
+            const zMarker = new THREE.Mesh(new THREE.BoxGeometry(markerSize, markerSize, markerSize), zMaterial);
+            zMarker.position.set(0, 0, Math.max(L, W, H) * 1.1);
+            scene.add(zMarker);
+            
+            // Create room with only the three furthest faces and edges visible
+            createRoomWithFaces(L, H, W);
+            
+            // Visualize the resonance pattern based on mode type and indices
+            visualizeResonancePattern(mode, L, W, H);
+            
+            // Animation loop - simpler version without controls
+            function animate() {
+                requestAnimationFrame(animate);
+                renderer.render(scene, camera);
+            }
+            animate();
+            
+            // Ensure proper sizing - handle delayed rendering
+            setTimeout(function() {
+                if (renderer && container.clientWidth > 0 && container.clientHeight > 0) {
+                    renderer.setSize(container.clientWidth, container.clientHeight);
+                    camera.aspect = container.clientWidth / container.clientHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.render(scene, camera);
+                }
+            }, 100);
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (renderer) {
+                    const width = container.clientWidth;
+                    const height = container.clientHeight;
+                    if (width > 0 && height > 0) {
+                        renderer.setSize(width, height);
+                        camera.aspect = width / height;
+                        camera.updateProjectionMatrix();
+                    }
+                }
+            });
+        }
+        
+        // Function to create room with only edges visible (no faces)
+        function createRoomWithFaces(L, H, W) {
+            // Calculate the center of the room
+            const centerX = L/2;
+            const centerY = H/2;
+            const centerZ = W/2;
+            
+            // Create edges for the room
+            const edgesGeometry = new THREE.EdgesGeometry(new THREE.BoxGeometry(L, H, W));
+            const edgesMaterial = new THREE.LineBasicMaterial({ color: 0x444444 });
+            const edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
+            edges.position.set(centerX, centerY, centerZ);
+            scene.add(edges);
+            
+            console.log('Room created with dimensions L:', L, 'W:', W, 'H:', H);
+        }
+        
+        // Helper function to create a single face of the room
+        function createFace(p1, p2, p3, p4, color) {
+            const faceGeometry = new THREE.BufferGeometry();
+            const vertices = new Float32Array([
+                p1[0], p1[1], p1[2], // v1
+                p2[0], p2[1], p2[2], // v2
+                p3[0], p3[1], p3[2], // v3
+                
+                p1[0], p1[1], p1[2], // v1
+                p3[0], p3[1], p3[2], // v3
+                p4[0], p4[1], p4[2]  // v4
+            ]);
+            
+            faceGeometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+            const faceMaterial = new THREE.MeshBasicMaterial({ 
+                color: color, 
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.6
+            });
+            
+            const face = new THREE.Mesh(faceGeometry, faceMaterial);
+            scene.add(face);
+            return face;
+        }
+        
+        // Function to visualize resonance patterns
+        function visualizeResonancePattern(mode, L, W, H) {
+            // Remove previous resonance visualization if it exists
+            if (resonanceMesh) {
+                scene.remove(resonanceMesh);
+            }
+            
+            // Get mode indices from mode object
+            // Mode indices are stored in the indices array as [i, j, k]
+            const i = mode.indices[0];
+            const j = mode.indices[1];
+            const k = mode.indices[2];
+            
+            // Different visualization based on mode type
+            if (mode.modeType === 'axial') {
+                // For axial modes, visualize standing waves along one dimension
+                visualizeAxialMode(i, j, k, L, W, H);
+            } else if (mode.modeType === 'tangential') {
+                // For tangential modes, visualize a 2D standing wave pattern
+                visualizeTangentialMode(i, j, k, L, W, H);
+            } else {
+                // For oblique modes, visualize a 3D pattern
+                visualizeObliqueMode(i, j, k, L, W, H);
+            }
+        }
+        
+        // Visualize axial mode (standing wave along one dimension)
+        function visualizeAxialMode(i, j, k, L, W, H) {
+            // Determine which dimension has the non-zero index
+            let direction, size, numPlanes;
+            
+            // The indices i, j, k correspond to dimensions as follows:
+            // i = length (L, x-axis), j = height (H, y-axis), k = width (W, z-axis)
+            // IMPORTANT: For visualization, we're swapping the interpretation of j and k
+            // to match the expected behavior where 0-0-1 shows ceiling/floor and 0-1-0 shows side walls
+            if (i > 0) {
+                direction = 'x'; // Length dimension (x-axis)
+                size = L;
+                numPlanes = i;
+            } else if (k > 0) { 
+                direction = 'y'; // Height dimension (y-axis) - but using k index
+                size = H;
+                numPlanes = k;
+            } else if (j > 0) { 
+                direction = 'z'; // Width dimension (z-axis) - but using j index
+                size = W;
+                numPlanes = j;
+            } else {
+                console.error('Invalid axial mode - no non-zero indices:', i, j, k);
+                return;
+            }
+            
+            // Create volumetric cloud visualization
+            
+            const volumeGroup = createVolumetricCloud(L, W, H, (x, y, z) => {
+                // Normalize position based on the active dimension
+                let normPos;
+                if (direction === 'x') {
+                    normPos = x / L;
+                } else if (direction === 'y') {
+                    normPos = y / H;
+                } else { // z
+                    normPos = z / W;
+                }
+                
+                // No debugging code needed here
+                
+                // Calculate standing wave amplitude at this position
+                // High pressure zones should have high amplitude values
+                return Math.abs(Math.sin(numPlanes * Math.PI * normPos));
+            }, 0.9, new THREE.Color(0.3, 0.3, 1.0)); // 90% max opacity for axial modes, blue color
+            
+            scene.add(volumeGroup);
+            resonanceMesh = volumeGroup;
+        }
+        
+        // Visualize tangential mode (standing wave in two dimensions)
+        function visualizeTangentialMode(i, j, k, L, W, H) {
+            // Determine which two dimensions have non-zero indices
+            // i = length (L, x-axis), j = height (H, y-axis), k = width (W, z-axis)
+            // For visualization consistency, we map:
+            // - i to x-axis (length)
+            // - k to y-axis (height) - swapped with j
+            // - j to z-axis (width) - swapped with k
+            let activeDimensions = [];
+            if (i > 0) activeDimensions.push('x'); // Length dimension (x-axis)
+            if (k > 0) activeDimensions.push('y'); // Height dimension (y-axis) - using k index
+            if (j > 0) activeDimensions.push('z'); // Width dimension (z-axis) - using j index
+            
+            // For tangential modes we should have exactly 2 dimensions with non-zero indices
+            if (activeDimensions.length !== 2) {
+                console.error('Invalid tangential mode: requires exactly 2 non-zero indices');
+                return;
+            }
+            
+            // Get dimensions and their values
+            const dim1 = activeDimensions[0];
+            const dim2 = activeDimensions[1];
+            
+            // Map the indices to the correct dimensions
+            const count1 = dim1 === 'x' ? i : dim1 === 'y' ? k : j; // Swapped j and k
+            const count2 = dim2 === 'x' ? i : dim2 === 'y' ? k : j; // Swapped j and k
+            
+            // Create volumetric cloud visualization
+            const volumeGroup = createVolumetricCloud(L, W, H, (x, y, z) => {
+                // Normalize positions for the active dimensions
+                let norm1, norm2;
+                
+                if (dim1 === 'x') norm1 = x / L;
+                else if (dim1 === 'y') norm1 = y / H;
+                else norm1 = z / W;
+                
+                if (dim2 === 'x') norm2 = x / L;
+                else if (dim2 === 'y') norm2 = y / H;
+                else norm2 = z / W;
+                
+                // Calculate standing wave amplitude at this point
+                return Math.abs(Math.sin(count1 * Math.PI * norm1) * Math.sin(count2 * Math.PI * norm2));
+            }, 0.6, new THREE.Color(0.2, 0.8, 0.2)); // 60% max opacity for tangential modes, green color
+            
+            scene.add(volumeGroup);
+            resonanceMesh = volumeGroup;
+        }
+        
+        // Visualize oblique mode (standing wave in three dimensions)
+        function visualizeObliqueMode(i, j, k, L, W, H) {
+            // Verify that all three indices are non-zero
+            if (i <= 0 || j <= 0 || k <= 0) {
+                console.error('Invalid oblique mode - all indices must be non-zero:', i, j, k);
+                return;
+            }
+            
+            // Create volumetric cloud visualization
+            const volumeGroup = createVolumetricCloud(L, W, H, (x, y, z) => {
+                // Calculate the normalized position in each dimension
+                // For visualization consistency, we map:
+                // - i to x-axis (length)
+                // - k to y-axis (height) - swapped with j
+                // - j to z-axis (width) - swapped with k
+                const normX = x / L; // x-axis corresponds to length (i)
+                const normY = y / H; // y-axis corresponds to height (k) - swapped
+                const normZ = z / W; // z-axis corresponds to width (j) - swapped
+                
+                // Calculate the standing wave amplitude as product of sine waves in all dimensions
+                const amplitudeX = Math.abs(Math.sin(i * Math.PI * normX));
+                const amplitudeY = Math.abs(Math.sin(k * Math.PI * normY)); // Using k for y-axis
+                const amplitudeZ = Math.abs(Math.sin(j * Math.PI * normZ)); // Using j for z-axis
+                
+                return amplitudeX * amplitudeY * amplitudeZ;
+            }, 0.3, new THREE.Color(0.6, 0.3, 0.8)); // 30% max opacity for oblique modes, purple color
+            
+            scene.add(volumeGroup);
+            resonanceMesh = volumeGroup;
+        }
+        
+        // Function to show detailed mode information in the modal
+        function showModeDetails(mode, L, W, H) {
+            const modal = document.getElementById('modeModal');
+            
+            // Set modal title - more concise
+            document.getElementById('modal-title').textContent = 
+                `Mode ${mode.indices.join(',')} at ${mode.freq.toFixed(1)} Hz`;
+            
+            // Set technical information
+            let modeTypeFull = '';
+            let modeColor = '';
+            switch(mode.modeType) {
+                case 'axial': 
+                    modeTypeFull = 'Axial Mode (1D)';
+                    modeColor = '#3498db';
+                    break;
+                case 'tangential': 
+                    modeTypeFull = 'Tangential Mode (2D)';
+                    modeColor = '#2ecc71';
+                    break;
+                case 'oblique': 
+                    modeTypeFull = 'Oblique Mode (3D)';
+                    modeColor = '#9b59b6';
+                    break;
+            }
+            
+            document.getElementById('mode-type-info').innerHTML = 
+                `<strong>Type:</strong> <span style="color:${modeColor}">${modeTypeFull}</span>`;
+                
+            document.getElementById('mode-indices').innerHTML = 
+                `<strong>Mode Indices:</strong> ${mode.indices.join(',')}`;
+                
+            document.getElementById('mode-frequency').innerHTML = 
+                `<strong>Frequency:</strong> ${mode.freq.toFixed(2)} Hz`;
+                
+            const noteMatch = mode.matchesNote ? 
+                `<span style="color: #e67e22; font-weight: bold;">✓ Matches</span>` : 
+                `<span style="color: #7f8c8d;">No match</span>`;
+                
+            document.getElementById('mode-musical-note').innerHTML = 
+                `<strong>Musical Note:</strong> ${mode.closestNote} (${mode.noteFreq.toFixed(1)} Hz) ${noteMatch}`;
+                
+            document.getElementById('mode-formula').innerHTML = 
+                `f = (343/2) × √[(${mode.indices[0]}/${L})² + (${mode.indices[1]}/${H})² + (${mode.indices[2]}/${W})²] = ${mode.freq.toFixed(2)} Hz`;
+            
+            // Simple explanation based on mode type and indices
+            let simpleExplanation = '';
+            const [i, j, k] = mode.indices;
+            const dimensions = [];
+            
+            if (i > 0) dimensions.push(`length (${L}m)`);
+            if (j > 0) dimensions.push(`height (${H}m)`);
+            if (k > 0) dimensions.push(`width (${W}m)`);
+            
+            const dimensionsText = dimensions.join(' and ');
+            
+            if (mode.modeType === 'axial') {
+                // For axial modes, explain which dimension and where it resonates
+                const dimension = dimensions[0];
+                const index = mode.indices.findIndex(idx => idx > 0);
+                const size = index === 0 ? L : index === 1 ? H : W;
+                const direction = index === 0 ? 'lengthwise' : index === 1 ? 'vertically' : 'widthwise';
+                const divisions = mode.indices[index];
+                
+                simpleExplanation = `This <strong>axial mode</strong> resonates along the room's ${dimension}. ` +
+                    `Sound waves bounce back and forth ${direction}, creating ${divisions} pressure zones ` +
+                    `across ${size} meters.`;
+                    
+                // Visualization caption for axial modes - more concise
+                const locations = [];
+                for (let n = 0; n <= divisions; n++) {
+                    locations.push((size * n / divisions).toFixed(2));
+                }
+                
+                document.getElementById('mode-visualization-text').innerHTML = 
+                    `Pressure peaks at: ${locations.join(', ')} meters. Listeners at these positions will hear this frequency accentuated.`;
+                
+            } else if (mode.modeType === 'tangential') {
+                // For tangential modes, explain which two dimensions interact - more concise
+                simpleExplanation = `This <strong>tangential mode</strong> resonates between the ${dimensionsText} walls. ` +
+                    `Sound waves travel in a rectangular pattern, creating a grid of pressure zones. ` +
+                    `These modes are typically half as strong as axial modes.`;
+                    
+                document.getElementById('mode-visualization-text').innerHTML = 
+                    `Creates a ${i}×${j}×${k} grid of pressure zones. Strongest effect near the corners where ${dimensionsText} walls meet.`;
+                    
+            } else { // oblique
+                // For oblique modes, explain the 3D interaction - more concise
+                simpleExplanation = `This <strong>oblique mode</strong> resonates in all three dimensions, ` +
+                    `bouncing between all six surfaces of the room. ` +
+                    `These complex 3D patterns are typically a quarter as strong as axial modes.`;
+                    
+                document.getElementById('mode-visualization-text').innerHTML = 
+                    `Creates a complex ${i}×${j}×${k} 3D pattern throughout the room. Most noticeable near room corners.`;
+            }
+            
+            document.getElementById('mode-simple-explanation').innerHTML = simpleExplanation;
+            
+            // Acoustic impact and treatment suggestions - more concise
+            let acousticImpact = '';
+            if (mode.matchesNote) {
+                acousticImpact = `<strong>This mode matches note ${mode.closestNote} (${mode.noteFreq.toFixed(1)} Hz)</strong>. ` +
+                    `When played, this note will be naturally accentuated by the room, potentially causing longer decay times ` +
+                    `and affecting the tonal balance of performances or recordings.`;
+            } else {
+                acousticImpact = `This mode doesn't match any specific musical note, but frequencies around ` +
+                    `${mode.freq.toFixed(1)} Hz will still resonate in your room, potentially coloring the sound.`;
+            }
+            
+            document.getElementById('mode-acoustic-impact').innerHTML = acousticImpact;
+            
+            // Treatment suggestions based on mode type and frequency - more concise
+            let treatment = '';
+            if (mode.freq < 100) {
+                treatment = `<strong>Treatment:</strong> For this low frequency (${mode.freq.toFixed(1)} Hz), use thick bass traps ` +
+                    `(4-6" deep) in corners and at pressure anti-nodes. Consider membrane or resonant absorbers tuned to this frequency.`;
+            } else if (mode.freq < 300) {
+                treatment = `<strong>Treatment:</strong> For this mid-low frequency (${mode.freq.toFixed(1)} Hz), use thick porous absorbers ` +
+                    `(3-4" thick) at ${mode.modeType === 'axial' ? 'walls' : mode.modeType === 'tangential' ? 'wall junctions' : 'corners'} ` +
+                    `where pressure anti-nodes form.`;
+            } else {
+                treatment = `<strong>Treatment:</strong> This higher frequency (${mode.freq.toFixed(1)} Hz) can be treated with standard ` +
+                    `acoustic panels (2" thick) at reflection points. Diffusers will also help create a more balanced sound field.`;
+            }
+            
+            document.getElementById('mode-treatment-suggestions').innerHTML = treatment;
+            
+            // Show the modal first so container has dimensions
+            modal.style.display = 'block';
+            
+            // Initialize the 3D visualization after a short delay to ensure modal is visible
+            setTimeout(() => {
+                create3DVisualization(mode, L, W, H);
+            }, 50);
+        }
+        
+        // Helper function to create a volumetric cloud visualization
+        function createVolumetricCloud(L, W, H, amplitudeFunction, maxOpacity, baseColor) {
+            const volumeGroup = new THREE.Group();
+            
+            // Resolution for the volumetric cloud
+            const resolutionX = 12; // Length (L, x-axis) resolution
+            const resolutionY = 12; // Height (H, y-axis) resolution
+            const resolutionZ = 12; // Width (W, z-axis) resolution
+            
+            // Threshold for rendering voxels (skip low amplitude areas)
+            // Increased threshold to only show higher pressure zones
+            const amplitudeThreshold = 0.4;
+            
+            // Size of each voxel
+            const voxelSizeX = L / resolutionX;
+            const voxelSizeY = H / resolutionY;
+            const voxelSizeZ = W / resolutionZ;
+            
+            // Voxel sizes for the volumetric cloud
+            
+            // Create voxels throughout the volume
+            for (let ix = 0; ix < resolutionX; ix++) {
+                for (let iy = 0; iy < resolutionY; iy++) {
+                    for (let iz = 0; iz < resolutionZ; iz++) {
+                        // Calculate center position of this voxel
+                        const x = (ix + 0.5) * voxelSizeX;
+                        const y = (iy + 0.5) * voxelSizeY;
+                        const z = (iz + 0.5) * voxelSizeZ;
+                        
+                        // Calculate amplitude at this point using the provided function
+                        // Invert the amplitude calculation to fix the visualization
+                        // 1 - amplitude will invert the pattern so high pressure zones are shown
+                        const rawAmplitude = amplitudeFunction(x, y, z);
+                        const amplitude = 1 - rawAmplitude;
+                        
+                        // Only show high amplitude (high pressure) regions
+                        if (amplitude < amplitudeThreshold) continue;
+                        
+                        // Create voxel size based on amplitude
+                        // Larger voxels for higher amplitudes to emphasize high pressure zones
+                        const voxelScale = 0.7 + (amplitude * 0.3);
+                        const voxelGeometry = new THREE.BoxGeometry(
+                            voxelSizeX * voxelScale,
+                            voxelSizeY * voxelScale,
+                            voxelSizeZ * voxelScale
+                        );
+                        
+                        // Create material with color and opacity based on amplitude
+                        const voxelMaterial = new THREE.MeshBasicMaterial({
+                            color: baseColor,
+                            transparent: true,
+                            opacity: amplitude * maxOpacity
+                        });
+                        
+                        const voxel = new THREE.Mesh(voxelGeometry, voxelMaterial);
+                        voxel.position.set(x, y, z);
+                        volumeGroup.add(voxel);
+                    }
+                }
+            }
+            
+            return volumeGroup;
+        }
+        // Initial plot
+        attemptUpdatePlot();
+        
+        // Make the plot responsive
+        window.addEventListener('resize', () => {
+            Plotly.relayout('plot', {
+                width: document.getElementById('plot').clientWidth
+            });
+        });
+    </script>
+    <script>
+        // Info popup functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const infoIcon = document.getElementById('tolerance-info');
+            const infoPopup = document.getElementById('tolerance-info-popup');
+            
+            if (infoIcon && infoPopup) {
+                // Toggle popup when clicking the info icon
+                infoIcon.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    
+                    // Position the popup next to the icon
+                    const iconRect = infoIcon.getBoundingClientRect();
+                    infoPopup.style.top = (iconRect.top + window.scrollY) + 'px';
+                    infoPopup.style.left = (iconRect.right + window.scrollX + 10) + 'px';
+                    
+                    // Toggle display
+                    if (infoPopup.style.display === 'block') {
+                        infoPopup.style.display = 'none';
+                    } else {
+                        infoPopup.style.display = 'block';
+                    }
+                });
+                
+                // Close popup when clicking elsewhere on the page
+                document.addEventListener('click', function(e) {
+                    if (e.target !== infoIcon && infoPopup.style.display === 'block') {
+                        infoPopup.style.display = 'none';
+                    }
+                });
+            }
+            
+            // Update references to 'resolution' in the UI to 'tolerance'
+            const resolutionReferences = document.querySelectorAll('span.highlighted-note');
+            resolutionReferences.forEach(ref => {
+                const parentElement = ref.parentElement;
+                if (parentElement && parentElement.textContent.includes('resolution')) {
+                    parentElement.innerHTML = parentElement.innerHTML.replace('resolution', 'tolerance');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
