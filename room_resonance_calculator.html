@@ -112,6 +112,58 @@
             margin-top: 30px;
         }
         
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .credits-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .credits-list {
+            margin-bottom: 25px;
+        }
+        
+        .credits-list li {
+            margin-bottom: 8px;
+        }
+        
+        .credits-list a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        
+        .credits-list a:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+        }
+        
+        .footnote {
+            font-size: 0.75rem;
+            color: #999;
+            text-align: right;
+            margin-top: 30px;
+            font-style: italic;
+        }
+        
         .explanation h2 {
             color: var(--secondary-color);
             margin-bottom: 15px;
@@ -473,34 +525,81 @@
     </div>
 
     <div class="card explanation">
-        <h2>Understanding Room Resonance and Guitar Interaction</h2>
+        <h2>The Magic of Infinite Sustain: Room Resonance & Guitar</h2>
+        
+        <div class="video-container">
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/vkUpfw4Hf3w?si=FdC6rLJg0PI-2_Az&amp;start=175" title="Gary Moore - Still Got The Blues" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        </div>
+        
         <p>
-            This calculator helps visualize how a room's dimensions create resonant frequencies that can interact with guitar notes.
-            Room resonance occurs when sound waves bounce between parallel surfaces and create standing waves at specific frequencies.
+            Watch in awe as Gary Moore demonstrates the legendary "infinite sustain" technique at 2:55 (end especially at 8:30). Stepping in and out of the perfect spot in front of his amplifiers, in a stadium acoustically tuned to perfection, Moore creates that haunting, seemingly endless note that defines blues-rock mastery. This isn't just skill—it's physics and acoustics working in perfect harmony.
         </p>
+        
+        <h3>Why It Works: The Science of Sweet Spots</h3>
         <p>
-            <strong>What this graph shows:</strong>
+            When a guitar note matches a room's natural resonance frequency, magic happens. The room itself becomes an amplifier, reinforcing specific frequencies and creating standing waves that feed energy back into your guitar strings. This is how legends like Moore, Gilmour, and May achieve those spine-tingling sustained notes without digital effects.
+        </p>
+        
+        <h3>How to Use This Tool</h3>
+        <p>
+            <strong>Find Your Room's Sweet Spot</strong>
             <ul>
-                <li><span style="color:#3498db">Blue dots</span> represent axial room modes (1D, strongest effect)</li>
-                <li><span style="color:#2ecc71">Green dots</span> represent tangential room modes (2D, medium effect)</li>
-                <li><span style="color:#9b59b6">Purple dots</span> represent oblique room modes (3D, weakest effect)</li>
-                <li><span style="color:#e67e22">Orange diamonds and lines</span> show musical note frequencies</li>
-                <li><span class="highlighted-note">Highlighted areas</span> indicate where room modes closely match musical notes (within the specified tolerance)</li>
-                <li>Click on any mode (dot) to see detailed information about that specific mode</li>
+                <li>Enter your current room dimensions</li>
+                <li>Identify which notes naturally resonate (highlighted in red)</li>
+                <li>Position yourself and your amp where these standing waves are strongest (usually at 1/4 or 1/3 room positions)</li>
+                <li>Play the matching notes and feel the room work its magic</li>
             </ul>
         </p>
+        
         <p>
-            <strong>How to use this information:</strong>
+            <strong>Design Your Dream Studio</strong>
             <ul>
-                <li>If you notice too many matches between room modes and notes you play frequently, your room may over-accentuate those notes</li>
-                <li>For recording or practice spaces, consider adding acoustic treatment (bass traps, diffusers) at problematic spots</li>
-                <li>Experiment with different room dimensions before building a music space</li>
-                <li>In existing rooms, try repositioning your playing or listening position to minimize the effect of problematic modes</li>
+                <li>Experiment with different room dimensions before construction</li>
+                <li>Find the perfect proportions that enhance your favorite notes</li>
+                <li>Avoid dimensions that create clustered modes (too many resonances at similar frequencies)</li>
             </ul>
         </p>
+        
         <p>
-            Ideal acoustic spaces have a relatively even distribution of modes without strong clustering or gaps. If you notice many highlighted areas in your playing range, consider adding acoustic treatment to those walls.        
+            <strong>Identify & Eliminate Problem Frequencies</strong>
+            <ul>
+                <li>Discover which notes are over-accentuated in your space</li>
+                <li>Apply acoustic treatment (bass traps, diffusers) at strategic points</li>
+                <li>Target treatment to the specific walls creating unwanted resonances</li>
+                <li>Create a more balanced acoustic environment for recording</li>
+            </ul>
         </p>
+        
+        <h3>Understanding the Visualization</h3>
+        <p>
+            <ul>
+                <li><span style="color:#3498db">Blue dots</span>: Axial modes (loudest gain) - sound waves bouncing between two parallel surfaces</li>
+                <li><span style="color:#2ecc71">Green dots</span>: Tangential modes (3dB less gain) - sound waves bouncing between four surfaces</li>
+                <li><span style="color:#9b59b6">Purple dots</span>: Oblique modes (6dB less gain) - sound waves bouncing between all six surfaces</li>
+                <li><span style="color:#e74c3c">Red highlights</span>: Where room modes match musical notes - your potential sweet spots!</li>
+            </ul>
+        </p>
+        
+        <div class="credits-section">
+            <h3>Credits & Resources</h3>
+            
+            <h4>Inspiration</h4>
+            <ul class="credits-list">
+                <li><a href="https://amcoustics.com/tools/amroc" target="_blank">AMROC</a> - An interactive room mode calculator with detailed visualizations of standing waves</li>
+                <li><a href="https://www.youtube.com/watch?v=mpZsn9FcZnQ" target="_blank">Room Mode Calculator Demo</a> - Video tutorial explaining how to interpret room modes for acoustic treatment</li>
+                <li><a href="https://acoustic.ua/forms/rr.en.html" target="_blank">Acoustic.ua Room Resonance Calculator</a> - Professional tool for acoustic engineers to analyze room dimensions</li>
+                <li><a href="https://odometer.org/misc/ht/" target="_blank">Home Theater Room Mode Calculator</a> - Simple calculator focused on optimizing audio for home theater spaces</li>
+            </ul>
+            
+            <h4>Sources</h4>
+            <ul class="credits-list">
+                <li><a href="https://mixbutton.com/music-tools/frequency-and-pitch/music-note-to-frequency-chart" target="_blank">Music Note to Frequency Chart</a> - Comprehensive reference for converting musical notes to their exact frequencies</li>
+                <li><a href="https://www.mcsquared.com/classic/metricmodes.htm" target="_blank">McSquared Room Modes</a> - Technical explanation of room mode calculations and their acoustic implications</li>
+                <li><a href="https://amcoustics.com/articles/roommodes" target="_blank">AMC Acoustics Room Modes Guide</a> - In-depth article on how room modes affect sound quality and acoustic treatment</li>
+            </ul>
+            
+            <p class="footnote">Most of this website was built using Claude 3.7 Sonnet</p>
+        </div>
     </div>
 
     <script>
