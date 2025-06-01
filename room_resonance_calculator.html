@@ -1322,49 +1322,42 @@
             resonanceMesh = volumeGroup;
         }
         
-        // Visualize tangential mode (standing wave in two dimensions)
-        function visualizeTangentialMode(i, j, k, L, W, H) {
-            // Determine which two dimensions have non-zero indices
-            // i = length (L, x-axis), j = height (H, y-axis), k = width (W, z-axis)
-            // For visualization consistency, we map:
-            // - i to x-axis (length)
-            // - k to y-axis (height) - swapped with j
-            // - j to z-axis (width) - swapped with k
-            let activeDimensions = [];
-            if (i > 0) activeDimensions.push('x'); // Length dimension (x-axis)
-            if (k > 0) activeDimensions.push('y'); // Height dimension (y-axis) - using k index
-            if (j > 0) activeDimensions.push('z'); // Width dimension (z-axis) - using j index
+         // Visualize tangential mode (standing wave in two dimensions)
+         function visualizeTangentialMode(i, j, k, L, W, H) {
+            // For tangential modes, exactly two indices should be non-zero
+            // Determine which dimensions are active (non-zero indices)
+            const activeIndices = [];
             
-            // For tangential modes we should have exactly 2 dimensions with non-zero indices
-            if (activeDimensions.length !== 2) {
+            if (i > 0) activeIndices.push({ dim: 'x', size: L, count: i });
+            if (j > 0) activeIndices.push({ dim: 'y', size: H, count: j });
+            if (k > 0) activeIndices.push({ dim: 'z', size: W, count: k });
+            
+            if (activeIndices.length !== 2) {
                 console.error('Invalid tangential mode: requires exactly 2 non-zero indices');
                 return;
             }
             
-            // Get dimensions and their values
-            const dim1 = activeDimensions[0];
-            const dim2 = activeDimensions[1];
-            
-            // Map the indices to the correct dimensions
-            const count1 = dim1 === 'x' ? i : dim1 === 'y' ? k : j; // Swapped j and k
-            const count2 = dim2 === 'x' ? i : dim2 === 'y' ? k : j; // Swapped j and k
-            
             // Create volumetric cloud visualization
             const volumeGroup = createVolumetricCloud(L, W, H, (x, y, z) => {
-                // Normalize positions for the active dimensions
-                let norm1, norm2;
+                // Normalize positions for each dimension
+                const normX = x / L;
+                const normY = y / H;
+                const normZ = z / W;
                 
-                if (dim1 === 'x') norm1 = x / L;
-                else if (dim1 === 'y') norm1 = y / H;
-                else norm1 = z / W;
+                // Calculate amplitude based on the product of sine waves in the active dimensions
+                let amplitude = 1;
                 
-                if (dim2 === 'x') norm2 = x / L;
-                else if (dim2 === 'y') norm2 = y / H;
-                else norm2 = z / W;
+                for (const active of activeIndices) {
+                    let normPos;
+                    if (active.dim === 'x') normPos = normX;
+                    else if (active.dim === 'y') normPos = normY;
+                    else normPos = normZ;
+                    
+                    amplitude *= Math.abs(Math.sin(active.count * Math.PI * normPos));
+                }
                 
-                // Calculate standing wave amplitude at this point
-                return Math.abs(Math.sin(count1 * Math.PI * norm1) * Math.sin(count2 * Math.PI * norm2));
-            }, 0.6, new THREE.Color(0.2, 0.8, 0.2)); // 60% max opacity for tangential modes, green color
+                return amplitude;
+            }, 0.7, new THREE.Color(0.2, 0.8, 0.2)); // 70% max opacity for tangential modes, green color
             
             scene.add(volumeGroup);
             resonanceMesh = volumeGroup;
