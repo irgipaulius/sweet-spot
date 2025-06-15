@@ -2,6 +2,8 @@
 
 A web application that calculates and visualizes room resonance modes and their interaction with guitar notes.
 
+> Demo: [sweetspot.hyperreader.eu](https://sweetspot.hyperreader.eu/)
+
 ## Setup
 
 1. Install dependencies:
